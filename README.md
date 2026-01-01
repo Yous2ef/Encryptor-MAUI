@@ -3,7 +3,7 @@
 [![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Windows-blue.svg)](https://dotnet.microsoft.com/apps/maui)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/version-1.0.0-orange.svg)](https://github.com/Yous2ef/Encryptor/releases)
+[![Release](https://img.shields.io/badge/version-1.0.0-orange.svg)](https://github.com/Yous2ef/Encryptor-MAUI/releases)
 
 A modern, cross-platform file encryption application built with .NET MAUI. Encrypt and decrypt your files securely with AES-256 encryption on Android and Windows.
 
@@ -77,7 +77,7 @@ A modern, cross-platform file encryption application built with .NET MAUI. Encry
   <tr>
     <td align="center">🤖 <strong>Android</strong></td>
     <td align="center">
-      <a href="https://github.com/Yous2ef/Encryptor/releases/download/v1.0.0/Encryptor-v1.0.0.apk">
+      <a href="https://github.com/Yous2ef/Encryptor-MAUI/releases/download/v1.0.0/Encryptor-v1.0.0.apk">
         <img src="https://img.shields.io/badge/Download-APK-3DDC84?style=for-the-badge&logo=android" alt="Download APK"/>
       </a>
     </td>
@@ -85,7 +85,7 @@ A modern, cross-platform file encryption application built with .NET MAUI. Encry
   <tr>
     <td align="center">🪟 <strong>Windows</strong></td>
     <td align="center">
-      <a href="https://github.com/Yous2ef/Encryptor/releases/download/v1.0.0/Encryptor-Windows-v1.0.0.zip">
+      <a href="https://github.com/Yous2ef/Encryptor-MAUI/releases/download/v1.0.0/Encryptor-Windows-v1.0.0.zip">
         <img src="https://img.shields.io/badge/Download-ZIP-0078D4?style=for-the-badge&logo=windows" alt="Download ZIP"/>
       </a>
     </td>
@@ -124,8 +124,8 @@ To build from source, you'll need:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Yous2ef/Encryptor.git
-   cd Encryptor
+   git clone https://github.com/Yous2ef/Encryptor-MAUI.git
+   cd Encryptor-MAUI
    ```
 
 2. **Restore dependencies**
@@ -270,7 +270,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Yous2ef** - [@Yous2ef](https://github.com/Yous2ef)
 
-Project Link: [https://github.com/Yous2ef/Encryptor](https://github.com/Yous2ef/Encryptor)
+Project Link: [https://github.com/Yous2ef/Encryptor-MAUI](https://github.com/Yous2ef/Encryptor-MAUI)
 
 ---
 
