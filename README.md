@@ -116,7 +116,7 @@ To build from source, you'll need:
 ### Installation
 
 #### Option 1: Download Pre-built Release
-1. Go to the [Releases page](https://github.com/Yous2ef/Encryptor/releases)
+1. Go to the [Releases page](https://github.com/Yous2ef/Encryptor-MAUI/releases)
 2. Download the appropriate package for your platform
 3. Install and run
 
