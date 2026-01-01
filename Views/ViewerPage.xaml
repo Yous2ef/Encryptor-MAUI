@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Encryptor.Views.ViewerPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Encryptor"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:Encryptor.ViewModels"
+    Title="{Binding FileName}"
+    x:DataType="vm:ViewerViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource LightBackground},
+                                      Dark={StaticResource DarkBackground}}"
+    Shell.NavBarIsVisible="False">
+
+    <!--  Root Grid - Full Screen, No Padding  -->
+    <Grid>
+
+        <!--  LAYER 1: Full-Screen Content (Base Layer - Z-Index 0)  -->
+        <Grid>
+            <!--  Loading Indicator  -->
+            <VerticalStackLayout
+                HorizontalOptions="Center"
+                IsVisible="{Binding IsLoading}"
+                Spacing="16"
+                VerticalOptions="Center">
+                <ActivityIndicator
+                    HeightRequest="48"
+                    IsRunning="{Binding IsLoading}"
+                    WidthRequest="48"
+                    Color="{StaticResource Primary}" />
+                <Label
+                    HorizontalOptions="Center"
+                    Text="Loading file..."
+                    TextColor="{AppThemeBinding Light={StaticResource LightTextSecondary},
+                                                Dark={StaticResource DarkTextSecondary}}" />
+            </VerticalStackLayout>
+
+            <!--  Error Display  -->
+            <VerticalStackLayout
+                Padding="24"
+                HorizontalOptions="Center"
+                IsVisible="{Binding HasError}"
+                Spacing="16"
+                VerticalOptions="Center">
+                <Label
+                    FontSize="64"
+                    HorizontalOptions="Center"
+                    Text="❌" />
+                <Label
+                    FontSize="16"
+                    HorizontalTextAlignment="Center"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="{StaticResource Error}" />
+            </VerticalStackLayout>
+
+            <!--  Image Viewer - Edge-to-Edge with Pinch Zoom  -->
+            <Grid IsVisible="{Binding IsImage}">
+                <Image
+                    x:Name="ImageViewer"
+                    Margin="24,80,24,100"
+                    Aspect="AspectFit"
+                    HorizontalOptions="Fill"
+                    Source="{Binding ImageSource}"
+                    VerticalOptions="Fill">
+                    <Image.GestureRecognizers>
+                        <PinchGestureRecognizer />
+                    </Image.GestureRecognizers>
+                </Image>
+            </Grid>
+
+            <!--  Media Player (Video/Audio) - Full Screen  -->
+            <toolkit:MediaElement
+                x:Name="MediaPlayer"
+                Margin="24,80,24,100"
+                HorizontalOptions="Fill"
+                IsVisible="{Binding IsMedia}"
+                ShouldAutoPlay="True"
+                ShouldShowPlaybackControls="True"
+                Source="{Binding MediaSource}"
+                VerticalOptions="Fill" />
+
+            <!--  Text Viewer - Full Screen with Internal Padding  -->
+            <ScrollView IsVisible="{Binding IsText}">
+                <Editor
+                    Margin="24,80,24,100"
+                    AutoSize="TextChanges"
+                    BackgroundColor="Transparent"
+                    FontFamily="Consolas"
+                    FontSize="14"
+                    HorizontalOptions="Fill"
+                    IsReadOnly="True"
+                    Text="{Binding TextContent}"
+                    TextColor="{AppThemeBinding Light={StaticResource LightTextPrimary},
+                                                Dark={StaticResource DarkTextPrimary}}"
+                    VerticalOptions="Fill" />
+            </ScrollView>
+
+            <!--  Unsupported File Type  -->
+            <VerticalStackLayout
+                Padding="24"
+                HorizontalOptions="Center"
+                IsVisible="{Binding IsUnsupported}"
+                Spacing="16"
+                VerticalOptions="Center">
+                <Label
+                    FontSize="64"
+                    HorizontalOptions="Center"
+                    Text="📎" />
+                <Label
+                    FontSize="18"
+                    HorizontalTextAlignment="Center"
+                    Text="This file type cannot be previewed"
+                    TextColor="{AppThemeBinding Light={StaticResource LightTextSecondary},
+                                                Dark={StaticResource DarkTextSecondary}}" />
+                <Label
+                    FontSize="14"
+                    HorizontalTextAlignment="Center"
+                    Text="You can save it to disk using the button below"
+                    TextColor="{AppThemeBinding Light={StaticResource LightTextSecondary},
+                                                Dark={StaticResource DarkTextSecondary}}" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <!--  LAYER 2: Top Floating Overlay (Z-Index 1)  -->
+        <Grid
+            CascadeInputTransparent="False"
+            InputTransparent="True"
+            VerticalOptions="Start">
+            <Border
+                Margin="16,8,16,0"
+                Padding="12,8"
+                BackgroundColor="{AppThemeBinding Light=#E0FFFFFF,
+                                                  Dark=#E0000000}"
+                InputTransparent="False"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="0">
+                <Border.Shadow>
+                    <Shadow
+                        Brush="{AppThemeBinding Light=#40000000,
+                                                Dark=#80000000}"
+                        Opacity="1"
+                        Radius="12"
+                        Offset="0,4" />
+                </Border.Shadow>
+
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                    <!--  Back Button  -->
+                    <Button
+                        Grid.Column="0"
+                        Margin="0,0,0,5"
+                        Padding="0"
+                        local:CursorBehavior.Cursor="Hand"
+                        BackgroundColor="Transparent"
+                        Command="{Binding GoBackCommand}"
+                        CornerRadius="20"
+                        FontSize="35"
+                        HeightRequest="40"
+                        Text="←"
+                        TextColor="{AppThemeBinding Light={StaticResource LightTextPrimary},
+                                                    Dark={StaticResource DarkTextPrimary}}"
+                        WidthRequest="50" />
+
+                    <!--  Filename  -->
+                    <Label
+                        Grid.Column="1"
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        LineBreakMode="TailTruncation"
+                        MaxLines="1"
+                        Text="{Binding FileName}"
+                        TextColor="{AppThemeBinding Light={StaticResource LightTextPrimary},
+                                                    Dark={StaticResource DarkTextPrimary}}"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!--  LAYER 3: Bottom Floating Overlay (Z-Index 1)  -->
+        <Grid
+            CascadeInputTransparent="False"
+            InputTransparent="True"
+            VerticalOptions="End">
+            <Border
+                Margin="16,0,16,16"
+                Padding="16"
+                BackgroundColor="{AppThemeBinding Light=#E0FFFFFF,
+                                                  Dark=#E0000000}"
+                HorizontalOptions="Center"
+                InputTransparent="False"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="0">
+                <Border.Shadow>
+                    <Shadow
+                        Brush="{AppThemeBinding Light=#40000000,
+                                                Dark=#80000000}"
+                        Opacity="1"
+                        Radius="12"
+                        Offset="0,4" />
+                </Border.Shadow>
+
+                <Button
+                    Padding="24,12"
+                    local:CursorBehavior.Cursor="Hand"
+                    BackgroundColor="{StaticResource Primary}"
+                    Command="{Binding SaveFileCommand}"
+                    CornerRadius="12"
+                    FontAttributes="Bold"
+                    FontSize="16"
+                    Text="💾 Save"
+                    TextColor="White" />
+            </Border>
+        </Grid>
+
+    </Grid>
+</ContentPage>

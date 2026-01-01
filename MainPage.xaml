@@ -1,0 +1,865 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Encryptor.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:Encryptor.Converters"
+    xmlns:local="clr-namespace:Encryptor"
+    xmlns:models="clr-namespace:Encryptor.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:Encryptor.ViewModels"
+    x:DataType="vm:MainViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource LightBackground},
+                                      Dark={StaticResource DarkBackground}}"
+    Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!--  Converters  -->
+            <converters:FileIconConverter x:Key="FileIconConverter" />
+            <converters:EncryptionStatusConverter x:Key="EncryptionStatusConverter" />
+            <converters:EncryptionStatusColorConverter x:Key="EncryptionStatusColorConverter" />
+            <converters:SelectionColorConverter x:Key="SelectionColorConverter" />
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+            <converters:IsNullConverter x:Key="IsNullConverter" />
+            <toolkit:IsNotNullConverter x:Key="IsNotNullConverter" />
+
+            <!--  Accent Colors  -->
+            <Color x:Key="PrimaryBlue">#2F80ED</Color>
+            <Color x:Key="PrimaryPurple">#9B51E0</Color>
+            <Color x:Key="AccentAmber">#F2C94C</Color>
+            <Color x:Key="SuccessGreen">#27AE60</Color>
+            <Color x:Key="ErrorRed">#EB5757</Color>
+
+            <!--  Gradient Brush for Primary Button  -->
+            <LinearGradientBrush x:Key="PrimaryGradient" StartPoint="0,0" EndPoint="1,0">
+                <GradientStop Offset="0.0" Color="#2F80ED" />
+                <GradientStop Offset="1.0" Color="#9B51E0" />
+            </LinearGradientBrush>
+
+            <!--  File Card Template  -->
+            <DataTemplate x:Key="FileCardTemplate" x:DataType="models:FileModel">
+                <Border
+                    Margin="5"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource LightSurface},
+                                                      Dark={StaticResource DarkSurface}}"
+                    HeightRequest="270"
+                    Stroke="{AppThemeBinding Light={StaticResource LightBorder},
+                                             Dark={StaticResource DarkBorder}}"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="1"
+                    WidthRequest="250">
+                    <Border.Shadow>
+                        <Shadow
+                            Brush="{AppThemeBinding Light=#00000020,
+                                                    Dark=#00000060}"
+                            Opacity="1"
+                            Radius="8"
+                            Offset="0,2" />
+                    </Border.Shadow>
+
+                    <Grid Padding="0" RowDefinitions="Auto,*,Auto">
+                        <!--  ROW 0: Thumbnail Area  -->
+                        <Border
+                            Grid.Row="0"
+                            BackgroundColor="{AppThemeBinding Light=#F5F5F5,
+                                                              Dark=#2C2C2C}"
+                            HeightRequest="150"
+                            StrokeShape="RoundRectangle 16,16,0,0"
+                            StrokeThickness="0">
+
+                            <Grid>
+                                <!--  Encrypted File - Show Lock Icon Only  -->
+                                <VerticalStackLayout
+                                    HorizontalOptions="Center"
+                                    Spacing="8"
+                                    VerticalOptions="Center">
+                                    <VerticalStackLayout.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsEncrypted}"
+                                            TargetType="VerticalStackLayout"
+                                            Value="False">
+                                            <Setter Property="IsVisible" Value="False" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsProcessing}"
+                                            TargetType="VerticalStackLayout"
+                                            Value="True">
+                                            <Setter Property="IsVisible" Value="False" />
+                                        </DataTrigger>
+                                    </VerticalStackLayout.Triggers>
+
+                                    <Label
+                                        FontSize="64"
+                                        HorizontalOptions="Center"
+                                        Text="🔒"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        FontSize="12"
+                                        HorizontalOptions="Center"
+                                        Text="Encrypted"
+                                        TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                                    Dark={StaticResource Gray400}}"
+                                        VerticalOptions="Center" />
+                                </VerticalStackLayout>
+
+                                <!--  Unencrypted File - Show Thumbnail or Icon  -->
+                                <Grid>
+                                    <Grid.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsEncrypted}"
+                                            TargetType="Grid"
+                                            Value="True">
+                                            <Setter Property="IsVisible" Value="False" />
+                                        </DataTrigger>
+                                    </Grid.Triggers>
+
+                                    <!--  Image/Video Preview for Media Files  -->
+                                    <Border
+                                        Margin="0"
+                                        HorizontalOptions="Fill"
+                                        IsVisible="{Binding ThumbnailSource, Converter={StaticResource IsNotNullConverter}}"
+                                        StrokeShape="RoundRectangle 8"
+                                        StrokeThickness="0"
+                                        VerticalOptions="Fill">
+                                        <Image Aspect="AspectFill" Source="{Binding ThumbnailSource}" />
+                                    </Border>
+
+                                    <!--  File Icon for Non-Media Files  -->
+                                    <Label
+                                        FontSize="48"
+                                        HorizontalOptions="Center"
+                                        IsVisible="{Binding ThumbnailSource, Converter={StaticResource IsNullConverter}}"
+                                        Text="{Binding Category, Converter={StaticResource FileIconConverter}}"
+                                        VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsProcessing}"
+                                                TargetType="Label"
+                                                Value="True">
+                                                <Setter Property="IsVisible" Value="False" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Grid>
+
+                                <!--  Processing Indicator  -->
+                                <ActivityIndicator
+                                    HeightRequest="36"
+                                    HorizontalOptions="Center"
+                                    IsRunning="{Binding IsProcessing}"
+                                    IsVisible="{Binding IsProcessing}"
+                                    VerticalOptions="Center"
+                                    WidthRequest="36"
+                                    Color="{StaticResource PrimaryBlue}" />
+
+                                <!--  Status Badge (Top Right Corner)  -->
+                                <Border
+                                    Margin="8"
+                                    BackgroundColor="{Binding IsEncrypted, Converter={StaticResource EncryptionStatusColorConverter}}"
+                                    HeightRequest="28"
+                                    HorizontalOptions="End"
+                                    StrokeShape="RoundRectangle 14"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Start"
+                                    WidthRequest="28">
+                                    <Label
+                                        FontSize="14"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsEncrypted}"
+                                                TargetType="Label"
+                                                Value="True">
+                                                <Setter Property="Text" Value="🔒" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding IsEncrypted}"
+                                                TargetType="Label"
+                                                Value="False">
+                                                <Setter Property="Text" Value="🔓" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!--  ROW 1: Info Area (Filename & Size)  -->
+                        <VerticalStackLayout
+                            Grid.Row="1"
+                            Padding="12,10,12,8"
+                            Spacing="4"
+                            VerticalOptions="Center">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="13"
+                                HorizontalTextAlignment="Start"
+                                LineBreakMode="TailTruncation"
+                                MaxLines="1"
+                                Text="{Binding FileName}"
+                                TextColor="{AppThemeBinding Light={StaticResource LightTextPrimary},
+                                                            Dark={StaticResource DarkTextPrimary}}" />
+
+                            <Label
+                                FontSize="11"
+                                HorizontalTextAlignment="Start"
+                                Text="{Binding FormattedSize}"
+                                TextColor="{AppThemeBinding Light={StaticResource LightTextSecondary},
+                                                            Dark={StaticResource DarkTextSecondary}}" />
+                        </VerticalStackLayout>
+
+                        <!--  ROW 2: Action Area (Buttons)  -->
+                        <Grid
+                            Grid.Row="2"
+                            Padding="12,0,12,12"
+                            ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <!--  View Button  -->
+                            <Button
+                                Grid.Column="0"
+                                Padding="0"
+                                local:CursorBehavior.Cursor="Hand"
+                                BackgroundColor="{StaticResource PrimaryBlue}"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=ViewFileCommand}"
+                                CommandParameter="{Binding .}"
+                                CornerRadius="8"
+                                FontAttributes="Bold"
+                                FontSize="12"
+                                HeightRequest="36"
+                                Text="View"
+                                TextColor="White" />
+
+                            <!--  Save Button (only visible for decrypted files)  -->
+                            <Button
+                                Grid.Column="1"
+                                Padding="0"
+                                local:CursorBehavior.Cursor="Hand"
+                                BackgroundColor="{StaticResource SuccessGreen}"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=SaveFileCommand}"
+                                CommandParameter="{Binding .}"
+                                CornerRadius="8"
+                                FontSize="18"
+                                HeightRequest="36"
+                                IsVisible="{Binding HasDecryptedDataInMemory}"
+                                Text="💾"
+                                TextColor="White"
+                                WidthRequest="36" />
+
+                            <!--  Delete Button  -->
+                            <Button
+                                Grid.Column="2"
+                                Padding="0"
+                                local:CursorBehavior.Cursor="Hand"
+                                BackgroundColor="Transparent"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=RemoveFileCommand}"
+                                CommandParameter="{Binding .}"
+                                CornerRadius="8"
+                                FontSize="18"
+                                HeightRequest="36"
+                                Text="🗑️"
+                                TextColor="{StaticResource ErrorRed}"
+                                WidthRequest="36" />
+                        </Grid>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <!--  Main Layout  -->
+    <Grid BackgroundColor="{AppThemeBinding Light={StaticResource LightBackground}, Dark={StaticResource DarkBackground}}" RowDefinitions="Auto,*,Auto">
+
+        <!--  ============================================  -->
+        <!--  ROW 0: NAVIGATION BAR / HEADER  -->
+        <!--  ============================================  -->
+        <Border
+            Grid.Row="0"
+            Padding="16,14"
+            BackgroundColor="{AppThemeBinding Light={StaticResource LightSurface},
+                                              Dark={StaticResource DarkSurface}}"
+            StrokeThickness="0">
+            <Border.Shadow>
+                <Shadow
+                    Brush="{AppThemeBinding Light=#00000015,
+                                            Dark=#00000040}"
+                    Opacity="1"
+                    Radius="8"
+                    Offset="0,2" />
+            </Border.Shadow>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <!--  App Title  -->
+                <HorizontalStackLayout
+                    Grid.Column="0"
+                    Spacing="12"
+                    VerticalOptions="Center">
+                    <Label
+                        FontSize="26"
+                        Text="🔐"
+                        VerticalOptions="Center" />
+                    <VerticalStackLayout Spacing="-2" VerticalOptions="Center">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="22"
+                            Text="Encryptor"
+                            TextColor="{AppThemeBinding Light={StaticResource LightTextPrimary},
+                                                        Dark={StaticResource DarkTextPrimary}}" />
+                        <Label
+                            FontSize="16"
+                            Text="مُشفر"
+                            TextColor="{AppThemeBinding Light={StaticResource LightTextSecondary},
+                                                        Dark={StaticResource DarkTextSecondary}}" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+
+                <!--  Theme Toggle Button  -->
+                <Button
+                    Grid.Column="1"
+                    Padding="0"
+                    local:CursorBehavior.Cursor="Hand"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
+                                                      Dark={StaticResource Gray800}}"
+                    Command="{Binding ToggleThemeCommand}"
+                    CornerRadius="22"
+                    FontSize="20"
+                    HeightRequest="44"
+                    Text="{Binding ThemeIcon}"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray600},
+                                                Dark={StaticResource Gray400}}"
+                    WidthRequest="44" />
+            </Grid>
+        </Border>
+
+        <!--  ============================================  -->
+        <!--  ROW 1: SCROLLABLE CONTENT (Controls + Files)  -->
+        <!--  ============================================  -->
+        <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Always">
+            <VerticalStackLayout Spacing="0">
+
+                <!--  CONTROL DASHBOARD CARD  -->
+                <Border
+                    Margin="12,12,12,0"
+                    Padding="8"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource LightSurface},
+                                                      Dark={StaticResource DarkSurface}}"
+                    Stroke="{AppThemeBinding Light={StaticResource LightBorder},
+                                             Dark={StaticResource DarkBorder}}"
+                    StrokeShape="RoundRectangle 20"
+                    StrokeThickness="1">
+                    <Border.Shadow>
+                        <Shadow
+                            Brush="{AppThemeBinding Light=#00000010,
+                                                    Dark=#00000050}"
+                            Opacity="1"
+                            Radius="12"
+                            Offset="0,4" />
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="7">
+
+                        <!--  Key Field with Eye Toggle  -->
+                        <Border
+                            Padding="4"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
+                                                              Dark={StaticResource Gray800}}"
+                            Stroke="{AppThemeBinding Light={StaticResource Gray200},
+                                                     Dark={StaticResource Gray700}}"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="1">
+                            <Grid Padding="10,0" ColumnDefinitions="Auto,*,Auto">
+                                <Label
+                                    Grid.Column="0"
+                                    Margin="0,0,10,0"
+                                    FontSize="18"
+                                    Text="🔑"
+                                    VerticalOptions="Center" />
+
+                                <Entry
+                                    Grid.Column="1"
+                                    BackgroundColor="Transparent"
+                                    FontSize="15"
+                                    IsPassword="{Binding IsKeyHidden}"
+                                    Placeholder="Enter encryption key..."
+                                    PlaceholderColor="{AppThemeBinding Light={StaticResource Gray400},
+                                                                       Dark={StaticResource Gray500}}"
+                                    Text="{Binding Key}"
+                                    TextColor="{AppThemeBinding Light={StaticResource LightTextPrimary},
+                                                                Dark={StaticResource DarkTextPrimary}}" />
+
+                                <Button
+                                    Grid.Column="2"
+                                    Padding="0"
+                                    local:CursorBehavior.Cursor="Hand"
+                                    BackgroundColor="Transparent"
+                                    Command="{Binding ToggleKeyVisibilityCommand}"
+                                    CornerRadius="20"
+                                    FontSize="18"
+                                    HeightRequest="40"
+                                    Text="{Binding KeyVisibilityIcon}"
+                                    TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                                Dark={StaticResource Gray400}}"
+                                    WidthRequest="40" />
+                            </Grid>
+                        </Border>
+
+                        <!--  Segmented Control: Encrypt | Decrypt  -->
+                        <Border
+                            Padding="4"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
+                                                              Dark={StaticResource Gray800}}"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="0">
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="4">
+                                <!--  Encrypt Button  -->
+                                <Button
+                                    Grid.Column="0"
+                                    Padding="0"
+                                    local:CursorBehavior.Cursor="Hand"
+                                    Command="{Binding ToggleModeCommand}"
+                                    CornerRadius="12"
+                                    FontAttributes="Bold"
+                                    FontSize="14"
+                                    HeightRequest="46"
+                                    Text="🔐 Encrypt">
+                                    <Button.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsEncryptMode}"
+                                            TargetType="Button"
+                                            Value="True">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryBlue}" />
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsEncryptMode}"
+                                            TargetType="Button"
+                                            Value="False">
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+
+                                <!--  Decrypt Button  -->
+                                <Button
+                                    Grid.Column="1"
+                                    Padding="0"
+                                    local:CursorBehavior.Cursor="Hand"
+                                    Command="{Binding ToggleModeCommand}"
+                                    CornerRadius="12"
+                                    FontAttributes="Bold"
+                                    FontSize="14"
+                                    HeightRequest="46"
+                                    Text="🔓 Decrypt">
+                                    <Button.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsEncryptMode}"
+                                            TargetType="Button"
+                                            Value="False">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource AccentAmber}" />
+                                            <Setter Property="TextColor" Value="#1A1A1A" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsEncryptMode}"
+                                            TargetType="Button"
+                                            Value="True">
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <!--  Options Row: Chips  -->
+                        <ScrollView HorizontalScrollBarVisibility="Never" Orientation="Horizontal">
+                            <HorizontalStackLayout Spacing="10">
+                                <!--  Save to Disk Chip  -->
+                                <Border
+                                    Padding="6,-1"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
+                                                                      Dark={StaticResource Gray800}}"
+                                    IsVisible="False"
+                                    StrokeShape="RoundRectangle 20"
+                                    StrokeThickness="0">
+                                    <HorizontalStackLayout Spacing="-5">
+                                        <CheckBox
+                                            IsChecked="{Binding OverwriteOriginal}"
+                                            Scale="1"
+                                            Color="{StaticResource PrimaryBlue}" />
+                                        <Label
+                                            Margin="-5,0,10,0"
+                                            FontSize="13"
+                                            Text="Save to disk"
+                                            TextColor="{AppThemeBinding Light={StaticResource LightTextPrimary},
+                                                                        Dark={StaticResource DarkTextPrimary}}"
+                                            VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                </Border>
+
+                                <!--  Clear All Chip  -->
+                                <Border
+                                    Padding="16,10"
+                                    local:CursorBehavior.Cursor="Hand"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
+                                                                      Dark={StaticResource Gray800}}"
+                                    IsVisible="{Binding HasFiles}"
+                                    StrokeShape="RoundRectangle 20"
+                                    StrokeThickness="0">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ClearAllCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <Label
+                                        FontSize="13"
+                                        Text="🗑️ Clear All"
+                                        TextColor="{StaticResource ErrorRed}"
+                                        VerticalOptions="Center" />
+                                </Border>
+
+                                <!--  File Count Chip  -->
+                                <Border
+                                    Padding="16,10"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray200},
+                                                                      Dark={StaticResource Gray700}}"
+                                    IsVisible="{Binding HasFiles}"
+                                    StrokeShape="RoundRectangle 20"
+                                    StrokeThickness="0">
+                                    <Label
+                                        FontSize="13"
+                                        Text="{Binding Files.Count, StringFormat='{0} files'}"
+                                        TextColor="{AppThemeBinding Light={StaticResource LightTextSecondary},
+                                                                    Dark={StaticResource DarkTextSecondary}}"
+                                        VerticalOptions="Center" />
+                                </Border>
+                            </HorizontalStackLayout>
+                        </ScrollView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  FILE LIST (Using FlexLayout for responsive grid)  -->
+                <FlexLayout
+                    Margin="12"
+                    AlignContent="Center"
+                    AlignItems="Center"
+                    BindableLayout.ItemTemplate="{StaticResource FileCardTemplate}"
+                    BindableLayout.ItemsSource="{Binding Files}"
+                    Direction="Row"
+                    JustifyContent="Center"
+                    Wrap="Wrap">
+                    <BindableLayout.EmptyViewTemplate>
+                        <DataTemplate>
+                            <VerticalStackLayout
+                                Padding="0"
+                                HorizontalOptions="Center"
+                                Spacing="20"
+                                VerticalOptions="Center">
+                                <Border
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource LightSurface},
+                                                                      Dark={StaticResource DarkSurface}}"
+                                    HeightRequest="100"
+                                    HorizontalOptions="Center"
+                                    Stroke="{AppThemeBinding Light={StaticResource LightBorder},
+                                                             Dark={StaticResource DarkBorder}}"
+                                    StrokeShape="RoundRectangle 50"
+                                    StrokeThickness="1"
+                                    WidthRequest="100">
+                                    <Label
+                                        FontSize="48"
+                                        HorizontalOptions="Center"
+                                        Text="📁"
+                                        VerticalOptions="Center" />
+                                </Border>
+
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="20"
+                                    HorizontalOptions="Center"
+                                    Text="No files added yet"
+                                    TextColor="{AppThemeBinding Light={StaticResource LightTextPrimary},
+                                                                Dark={StaticResource DarkTextPrimary}}" />
+
+                                <Label
+                                    FontSize="14"
+                                    HorizontalOptions="Center"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Tap the + button to add files"
+                                    TextColor="{AppThemeBinding Light={StaticResource LightTextSecondary},
+                                                                Dark={StaticResource DarkTextSecondary}}" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </BindableLayout.EmptyViewTemplate>
+                </FlexLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!--  ============================================  -->
+        <!--  ROW 2: STICKY FOOTER - PRIMARY ACTION  -->
+        <!--  ============================================  -->
+        <Border
+            Grid.Row="2"
+            Padding="16,12"
+            BackgroundColor="{AppThemeBinding Light={StaticResource LightSurface},
+                                              Dark={StaticResource DarkSurface}}"
+            StrokeThickness="0">
+            <Border.Shadow>
+                <Shadow
+                    Brush="{AppThemeBinding Light=#00000010,
+                                            Dark=#00000050}"
+                    Opacity="1"
+                    Radius="10"
+                    Offset="0,-2" />
+            </Border.Shadow>
+
+            <Grid ColumnDefinitions="*,Auto,*" RowDefinitions="Auto,Auto,Auto">
+
+                <!--  Progress Bar (visible when processing)  -->
+                <ProgressBar
+                    Grid.Row="2"
+                    Grid.ColumnSpan="3"
+                    Margin="0,4,0,0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray200},
+                                                      Dark={StaticResource Gray700}}"
+                    HeightRequest="4"
+                    IsVisible="{Binding IsProcessing}"
+                    Progress="{Binding ProgressValue}"
+                    ProgressColor="{StaticResource PrimaryBlue}" />
+
+                <!--  Status Message  -->
+                <Label
+                    Grid.Row="1"
+                    Grid.ColumnSpan="3"
+                    FontSize="12"
+                    LineBreakMode="WordWrap"
+                    Text="{Binding StatusMessage}"
+                    TextColor="{AppThemeBinding Light={StaticResource LightTextSecondary},
+                                                Dark={StaticResource DarkTextSecondary}}"
+                    VerticalOptions="Center" />
+
+                <!--  Main Action Button with Gradient  -->
+                <Button
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Margin="5,0,5,7"
+                    Padding="36,0"
+                    local:CursorBehavior.Cursor="Hand"
+                    Background="{StaticResource PrimaryGradient}"
+                    Command="{Binding ProcessFilesCommand}"
+                    CornerRadius="25"
+                    FontAttributes="Bold"
+                    FontSize="15"
+                    HeightRequest="50"
+                    IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+                    TextColor="White">
+                    <Button.Shadow>
+                        <Shadow
+                            Brush="{StaticResource PrimaryBlue}"
+                            Opacity="0.5"
+                            Radius="12"
+                            Offset="0,4" />
+                    </Button.Shadow>
+                    <Button.Triggers>
+                        <DataTrigger
+                            Binding="{Binding IsEncryptMode}"
+                            TargetType="Button"
+                            Value="True">
+                            <Setter Property="Text" Value="🔐  START ENCRYPTION" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsEncryptMode}"
+                            TargetType="Button"
+                            Value="False">
+                            <Setter Property="Text" Value="🔓  START DECRYPTION" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsProcessing}"
+                            TargetType="Button"
+                            Value="True">
+                            <Setter Property="Text" Value="⏳  PROCESSING..." />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <!--  Cancel Button (visible when processing)  -->
+                <Button
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    Padding="0"
+                    local:CursorBehavior.Cursor="Hand"
+                    BackgroundColor="{StaticResource ErrorRed}"
+                    Command="{Binding CancelOperationCommand}"
+                    CornerRadius="22"
+                    FontSize="16"
+                    HeightRequest="44"
+                    HorizontalOptions="End"
+                    IsVisible="{Binding IsProcessing}"
+                    Text="✕"
+                    TextColor="White"
+                    WidthRequest="44" />
+
+                <!--  Save All Button (visible after decryption)  -->
+                <Button
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    Padding="20,0"
+                    local:CursorBehavior.Cursor="Hand"
+                    BackgroundColor="{StaticResource SuccessGreen}"
+                    Command="{Binding SaveAllFilesCommand}"
+                    CornerRadius="25"
+                    FontAttributes="Bold"
+                    FontSize="14"
+                    HeightRequest="50"
+                    HorizontalOptions="End"
+                    IsVisible="{Binding ShowSaveAllButton}"
+                    Text="💾 SAVE ALL"
+                    TextColor="White">
+                    <Button.Shadow>
+                        <Shadow
+                            Brush="{StaticResource SuccessGreen}"
+                            Opacity="0.5"
+                            Radius="12"
+                            Offset="0,4" />
+                    </Button.Shadow>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!--  ============================================  -->
+        <!--  OVERLAY LAYER (FAB, Popup, Overlay) - Spans all rows, above everything  -->
+        <!--  ============================================  -->
+        <Grid
+            Grid.RowSpan="3"
+            CascadeInputTransparent="False"
+            InputTransparent="True">
+            <!--  Invisible overlay to dismiss popup when clicking outside  -->
+            <BoxView
+                x:Name="PopupOverlay"
+                BackgroundColor="Transparent"
+                HorizontalOptions="Fill"
+                InputTransparent="False"
+                IsVisible="False"
+                VerticalOptions="Fill">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnDismissPopup" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <!--  Popup Menu for Add Options (Above FAB)  -->
+            <Border
+                x:Name="AddOptionsPopup"
+                Margin="0,0,16,175"
+                Padding="0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource LightSurface},
+                                                  Dark={StaticResource DarkSurface}}"
+                HorizontalOptions="End"
+                InputTransparent="False"
+                IsVisible="False"
+                Stroke="{AppThemeBinding Light={StaticResource LightBorder},
+                                         Dark={StaticResource DarkBorder}}"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="1"
+                VerticalOptions="End">
+                <Border.Shadow>
+                    <Shadow
+                        Brush="{AppThemeBinding Light=#00000030,
+                                                Dark=#00000070}"
+                        Opacity="1"
+                        Radius="20"
+                        Offset="0,8" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="0">
+                    <!--  Add Files Button  -->
+                    <Border
+                        Padding="16,10"
+                        local:CursorBehavior.Cursor="Hand"
+                        BackgroundColor="Transparent"
+                        StrokeShape="RoundRectangle 12"
+                        StrokeThickness="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnAddFilesClicked" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="7">
+                            <Label
+                                FontSize="24"
+                                Text="📄"
+                                VerticalOptions="Center" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="15"
+                                Text="Add Files"
+                                TextColor="{AppThemeBinding Light={StaticResource LightTextPrimary},
+                                                            Dark={StaticResource DarkTextPrimary}}"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <!--  Divider  -->
+                    <BoxView
+                        Margin="8,0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray200},
+                                                          Dark={StaticResource Gray700}}"
+                        HeightRequest="1" />
+
+                    <!--  Add Folder Button  -->
+                    <Border
+                        Padding="16,10"
+                        local:CursorBehavior.Cursor="Hand"
+                        BackgroundColor="Transparent"
+                        StrokeShape="RoundRectangle 12"
+                        StrokeThickness="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnAddFolderClicked" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="7">
+                            <Label
+                                FontSize="24"
+                                Text="📁"
+                                VerticalOptions="Center" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="15"
+                                Text="Add Folder"
+                                TextColor="{AppThemeBinding Light={StaticResource LightTextPrimary},
+                                                            Dark={StaticResource DarkTextPrimary}}"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Floating Action Button (FAB) - Add Files  -->
+            <Button
+                x:Name="FabButton"
+                Margin="0,0,16,110"
+                Padding="0"
+                local:CursorBehavior.Cursor="Hand"
+                BackgroundColor="{StaticResource PrimaryBlue}"
+                Clicked="OnAddButtonClicked"
+                CornerRadius="30"
+                FontAttributes="Bold"
+                FontSize="30"
+                HeightRequest="60"
+                HorizontalOptions="End"
+                InputTransparent="False"
+                Text="+"
+                TextColor="White"
+                VerticalOptions="End"
+                WidthRequest="60">
+                <Button.Shadow>
+                    <Shadow
+                        Brush="{StaticResource PrimaryBlue}"
+                        Opacity="0.5"
+                        Radius="12"
+                        Offset="0,4" />
+                </Button.Shadow>
+            </Button>
+        </Grid>
+    </Grid>
+</ContentPage>

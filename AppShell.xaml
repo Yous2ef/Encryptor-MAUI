@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="Encryptor.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Encryptor"
+    xmlns:views="clr-namespace:Encryptor.Views"
+    Title="مُشفر - Encryptor"
+    Shell.FlyoutBehavior="Disabled"
+    BackgroundColor="{DynamicResource Gray800}"
+    FlyoutBackgroundColor="{DynamicResource LightTextPrimary}">
+
+    <ShellContent
+        Title="Home"
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage" />
+
+</Shell>

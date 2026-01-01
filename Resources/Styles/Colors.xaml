@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!--  Encryptor Primary Blue Color Scheme  -->
+    <Color x:Key="Primary">#1077b7</Color>
+    <Color x:Key="PrimaryDark">#0d5a8a</Color>
+    <Color x:Key="PrimaryLight">#3a9ed4</Color>
+    <Color x:Key="PrimaryDarkText">#ffffff</Color>
+    <Color x:Key="Secondary">#e8f4fa</Color>
+    <Color x:Key="SecondaryDarkText">#1077b7</Color>
+    <Color x:Key="Tertiary">#064a6e</Color>
+    <Color x:Key="Accent">#00d4aa</Color>
+
+    <!--  Base Colors  -->
+    <Color x:Key="White">#ffffff</Color>
+    <Color x:Key="Black">#000000</Color>
+    <Color x:Key="OffWhite">#f8fafc</Color>
+    <Color x:Key="OffBlack">#0f172a</Color>
+    <Color x:Key="MidnightBlue">#191970</Color>
+    <Color x:Key="Magenta">#1077b7</Color>
+
+    <!--  Light Theme Colors  -->
+    <Color x:Key="LightBackground">#f8fafc</Color>
+    <Color x:Key="LightSurface">#ffffff</Color>
+    <Color x:Key="LightCardBackground">#ffffff</Color>
+    <Color x:Key="LightTextPrimary">#1e293b</Color>
+    <Color x:Key="LightTextSecondary">#64748b</Color>
+    <Color x:Key="LightBorder">#e2e8f0</Color>
+
+    <!--  Dark Theme Colors  -->
+    <Color x:Key="DarkBackground">#0f172a</Color>
+    <Color x:Key="DarkSurface">#1e293b</Color>
+    <Color x:Key="DarkCardBackground">#1e293b</Color>
+    <Color x:Key="DarkTextPrimary">#f1f5f9</Color>
+    <Color x:Key="DarkTextSecondary">#94a3b8</Color>
+    <Color x:Key="DarkBorder">#334155</Color>
+
+    <!--  Status Colors  -->
+    <Color x:Key="Success">#10b981</Color>
+    <Color x:Key="Warning">#f59e0b</Color>
+    <Color x:Key="Error">#ef4444</Color>
+    <Color x:Key="EncryptedBadge">#10b981</Color>
+    <Color x:Key="UnlockedBadge">#f59e0b</Color>
+
+    <!--  Gray Scale  -->
+    <Color x:Key="Gray100">#f1f5f9</Color>
+    <Color x:Key="Gray200">#e2e8f0</Color>
+    <Color x:Key="Gray300">#cbd5e1</Color>
+    <Color x:Key="Gray400">#94a3b8</Color>
+    <Color x:Key="Gray500">#64748b</Color>
+    <Color x:Key="Gray600">#475569</Color>
+    <Color x:Key="Gray700">#334155</Color>
+    <Color x:Key="Gray800">#1e293b</Color>
+    <Color x:Key="Gray900">#0f172a</Color>
+    <Color x:Key="Gray950">#020617</Color>
+
+    <!--  Brushes  -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}" />
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}" />
+    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}" />
+    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}" />
+    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Accent}" />
+
+    <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100}" />
+    <SolidColorBrush x:Key="Gray200Brush" Color="{StaticResource Gray200}" />
+    <SolidColorBrush x:Key="Gray300Brush" Color="{StaticResource Gray300}" />
+    <SolidColorBrush x:Key="Gray400Brush" Color="{StaticResource Gray400}" />
+    <SolidColorBrush x:Key="Gray500Brush" Color="{StaticResource Gray500}" />
+    <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}" />
+    <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}" />
+    <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}" />
+</ResourceDictionary>
